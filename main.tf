@@ -30,6 +30,11 @@ variable "prefix" {
   default = "terraform_example"
 }
 
+variable "vm_count" {
+  type    = number
+  default = 1
+}
+
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/network.markdown
 resource "libvirt_network" "example" {
   name      = var.prefix
@@ -53,11 +58,12 @@ resource "libvirt_network" "example" {
 # see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#disk-setup
 # see https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html#datasource-nocloud
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/libvirt/cloudinit_def.go#L133-L162
-resource "libvirt_cloudinit_disk" "example_cloudinit" {
-  name      = "${var.prefix}_example_cloudinit.iso"
+resource "libvirt_cloudinit_disk" "example" {
+  count     = var.vm_count
+  name      = "${var.prefix}${count.index}_cloudinit.iso"
   user_data = <<EOF
 #cloud-config
-fqdn: example.test
+fqdn: example${count.index}.test
 manage_etc_hosts: true
 users:
   - name: vagrant
@@ -86,7 +92,8 @@ EOF
 # this uses the vagrant debian image imported from https://github.com/rgl/debian-vagrant.
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_root" {
-  name             = "${var.prefix}_root.img"
+  count            = var.vm_count
+  name             = "${var.prefix}${count.index}_root.img"
   base_volume_name = "debian-12-uefi-amd64_vagrant_box_image_0.0.0_box.img"
   format           = "qcow2"
   size             = 16 * 1024 * 1024 * 1024 # GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
@@ -95,14 +102,16 @@ resource "libvirt_volume" "example_root" {
 # a data disk.
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_data" {
-  name   = "${var.prefix}_data.img"
+  count  = var.vm_count
+  name   = "${var.prefix}${count.index}_data.img"
   format = "qcow2"
   size   = 32 * 1024 * 1024 * 1024 # GiB.
 }
 
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/domain.html.markdown
 resource "libvirt_domain" "example" {
-  name     = var.prefix
+  count    = var.vm_count
+  name     = "${var.prefix}${count.index}"
   machine  = "q35"
   firmware = "/usr/share/OVMF/OVMF_CODE.fd"
   cpu {
@@ -111,7 +120,7 @@ resource "libvirt_domain" "example" {
   vcpu       = 2
   memory     = 1024
   qemu_agent = true
-  cloudinit  = libvirt_cloudinit_disk.example_cloudinit.id
+  cloudinit  = libvirt_cloudinit_disk.example[count.index].id
   xml {
     xslt = file("libvirt-domain.xsl")
   }
@@ -119,19 +128,19 @@ resource "libvirt_domain" "example" {
     type = "qxl"
   }
   disk {
-    volume_id = libvirt_volume.example_root.id
+    volume_id = libvirt_volume.example_root[count.index].id
     scsi      = true
-    wwn       = "000000000000aa01"
+    wwn       = format("000000000000aa%02x", count.index)
   }
   disk {
-    volume_id = libvirt_volume.example_data.id
+    volume_id = libvirt_volume.example_data[count.index].id
     scsi      = true
-    wwn       = "000000000000ab01"
+    wwn       = format("000000000000ab%02x", count.index)
   }
   network_interface {
     network_id     = libvirt_network.example.id
     wait_for_lease = true
-    addresses      = ["10.17.3.2"]
+    addresses      = ["10.17.3.${2 + count.index}"]
   }
   provisioner "remote-exec" {
     inline = [
@@ -166,6 +175,6 @@ resource "libvirt_domain" "example" {
   }
 }
 
-output "ip" {
-  value = length(libvirt_domain.example.network_interface[0].addresses) > 0 ? libvirt_domain.example.network_interface[0].addresses[0] : ""
+output "ips" {
+  value = libvirt_domain.example[*].network_interface[0].addresses[0]
 }

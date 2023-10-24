@@ -26,13 +26,13 @@ time terraform apply tfplan
 Show information about the libvirt/qemu guest:
 
 ```bash
-virsh dumpxml terraform_example
-virsh qemu-agent-command terraform_example '{"execute":"guest-info"}' --pretty
-virsh qemu-agent-command terraform_example '{"execute":"guest-network-get-interfaces"}' --pretty
-./qemu-agent-guest-exec terraform_example id
-./qemu-agent-guest-exec terraform_example uname -a
-ssh-keygen -f ~/.ssh/known_hosts -R "$(terraform output --raw ip)"
-ssh "vagrant@$(terraform output --raw ip)"
+virsh dumpxml terraform_example0
+virsh qemu-agent-command terraform_example0 '{"execute":"guest-info"}' --pretty
+virsh qemu-agent-command terraform_example0 '{"execute":"guest-network-get-interfaces"}' --pretty
+./qemu-agent-guest-exec terraform_example0 id
+./qemu-agent-guest-exec terraform_example0 uname -a
+ssh-keygen -f ~/.ssh/known_hosts -R "$(terraform output --json ips | jq -r '.[0]')"
+ssh "vagrant@$(terraform output --json ips | jq -r '.[0]')"
 ```
 
 Destroy the infrastructure:
