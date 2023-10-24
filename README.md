@@ -2,7 +2,7 @@
 
 [![Lint](https://github.com/rgl/terraform-libvirt-debian-example/actions/workflows/lint.yml/badge.svg)](https://github.com/rgl/terraform-libvirt-debian-example/actions/workflows/lint.yml)
 
-Create and install the [base Debian 12 vagrant box](https://github.com/rgl/debian-vagrant).
+Create and install the [base Debian 12 UEFI vagrant box](https://github.com/rgl/debian-vagrant).
 
 Install Terraform:
 

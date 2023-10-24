@@ -67,7 +67,7 @@ users:
       - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
 disk_setup:
   /dev/disk/by-id/wwn-0x000000000000ab01:
-    table_type: mbr
+    table_type: gpt
     layout:
       - [100, 83]
     overwrite: false
@@ -87,9 +87,9 @@ EOF
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_root" {
   name             = "${var.prefix}_root.img"
-  base_volume_name = "debian-12-amd64_vagrant_box_image_0.0.0_box.img"
+  base_volume_name = "debian-12-uefi-amd64_vagrant_box_image_0.0.0_box.img"
   format           = "qcow2"
-  size             = 66 * 1024 * 1024 * 1024 # 66GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
+  size             = 16 * 1024 * 1024 * 1024 # GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
 }
 
 # a data disk.
@@ -97,13 +97,14 @@ resource "libvirt_volume" "example_root" {
 resource "libvirt_volume" "example_data" {
   name   = "${var.prefix}_data.img"
   format = "qcow2"
-  size   = 6 * 1024 * 1024 * 1024 # 6GiB.
+  size   = 32 * 1024 * 1024 * 1024 # GiB.
 }
 
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/domain.html.markdown
 resource "libvirt_domain" "example" {
-  name    = var.prefix
-  machine = "q35"
+  name     = var.prefix
+  machine  = "q35"
+  firmware = "/usr/share/OVMF/OVMF_CODE.fd"
   cpu {
     mode = "host-passthrough"
   }
@@ -158,6 +159,7 @@ resource "libvirt_domain" "example" {
   }
   lifecycle {
     ignore_changes = [
+      nvram,
       disk[0].wwn,
       disk[1].wwn,
     ]
