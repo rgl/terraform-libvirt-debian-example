@@ -146,6 +146,7 @@ resource "libvirt_domain" "example" {
     inline = [
       <<-EOF
       set -x
+      cloud-init status --long --wait
       id
       uname -a
       cat /etc/os-release
