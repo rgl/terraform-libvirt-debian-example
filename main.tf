@@ -66,18 +66,18 @@ users:
     ssh-authorized-keys:
       - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
 disk_setup:
-  /dev/sdb:
+  /dev/disk/by-id/wwn-0x000000000000ab01:
     table_type: mbr
     layout:
       - [100, 83]
     overwrite: false
 fs_setup:
   - label: data
-    device: /dev/sdb1
+    device: /dev/disk/by-id/wwn-0x000000000000ab01-part1
     filesystem: ext4
     overwrite: false
 mounts:
-  - [/dev/sdb1, /data, ext4, 'defaults,discard,nofail', '0', '2']
+  - [/dev/disk/by-id/wwn-0x000000000000ab01-part1, /data, ext4, 'defaults,discard,nofail', '0', '2']
 runcmd:
   - sed -i '/vagrant insecure public key/d' /home/vagrant/.ssh/authorized_keys
 EOF
@@ -120,10 +120,12 @@ resource "libvirt_domain" "example" {
   disk {
     volume_id = libvirt_volume.example_root.id
     scsi      = true
+    wwn       = "000000000000aa01"
   }
   disk {
     volume_id = libvirt_volume.example_data.id
     scsi      = true
+    wwn       = "000000000000ab01"
   }
   network_interface {
     network_id     = libvirt_network.example.id
@@ -142,7 +144,8 @@ resource "libvirt_domain" "example" {
       cat /etc/hosts
       sudo sfdisk -l
       lsblk -x KNAME -o KNAME,SIZE,TRAN,SUBSYSTEMS,FSTYPE,UUID,LABEL,MODEL,SERIAL
-      mount | grep ^/dev
+      mount | grep -E '^/dev/' | sort
+      cat /etc/fstab | grep -E '^\s*[^#]' | sort
       df -h
       EOF
     ]
