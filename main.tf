@@ -1,11 +1,11 @@
 # see https://github.com/hashicorp/terraform
 terraform {
-  required_version = "1.6.2"
+  required_version = "1.7.2"
   required_providers {
     # see https://registry.terraform.io/providers/hashicorp/random
     random = {
       source  = "hashicorp/random"
-      version = "3.5.1"
+      version = "3.6.0"
     }
     # see https://registry.terraform.io/providers/hashicorp/template
     template = {
@@ -16,7 +16,7 @@ terraform {
     # see https://github.com/dmacvicar/terraform-provider-libvirt
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "0.7.1"
+      version = "0.7.6"
     }
   }
 }
@@ -35,7 +35,7 @@ variable "vm_count" {
   default = 1
 }
 
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/network.markdown
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/network.markdown
 resource "libvirt_network" "example" {
   name      = var.prefix
   mode      = "nat"
@@ -52,12 +52,12 @@ resource "libvirt_network" "example" {
 
 # create a cloud-init cloud-config.
 # NB this creates an iso image that will be used by the NoCloud cloud-init datasource.
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/cloudinit.html.markdown
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/cloudinit.html.markdown
 # see journactl -u cloud-init
 # see /run/cloud-init/*.log
 # see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#disk-setup
 # see https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html#datasource-nocloud
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/libvirt/cloudinit_def.go#L133-L162
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/libvirt/cloudinit_def.go#L140-L169
 resource "libvirt_cloudinit_disk" "example" {
   count     = var.vm_count
   name      = "${var.prefix}${count.index}_cloudinit.iso"
@@ -90,17 +90,17 @@ EOF
 }
 
 # this uses the vagrant debian image imported from https://github.com/rgl/debian-vagrant.
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/volume.html.markdown
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_root" {
   count            = var.vm_count
   name             = "${var.prefix}${count.index}_root.img"
-  base_volume_name = "debian-12-uefi-amd64_vagrant_box_image_0.0.0_box.img"
+  base_volume_name = "debian-12-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
   format           = "qcow2"
   size             = 16 * 1024 * 1024 * 1024 # GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
 }
 
 # a data disk.
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/volume.html.markdown
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_data" {
   count  = var.vm_count
   name   = "${var.prefix}${count.index}_data.img"
@@ -108,7 +108,7 @@ resource "libvirt_volume" "example_data" {
   size   = 32 * 1024 * 1024 * 1024 # GiB.
 }
 
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.1/website/docs/r/domain.html.markdown
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/domain.html.markdown
 resource "libvirt_domain" "example" {
   count    = var.vm_count
   name     = "${var.prefix}${count.index}"
