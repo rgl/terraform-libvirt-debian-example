@@ -1,16 +1,12 @@
 # see https://github.com/hashicorp/terraform
 terraform {
-  required_version = "1.7.2"
+  required_version = "1.8.5"
   required_providers {
     # see https://registry.terraform.io/providers/hashicorp/random
+    # see https://github.com/hashicorp/terraform-provider-random
     random = {
       source  = "hashicorp/random"
-      version = "3.6.0"
-    }
-    # see https://registry.terraform.io/providers/hashicorp/template
-    template = {
-      source  = "hashicorp/template"
-      version = "2.2.0"
+      version = "3.6.2"
     }
     # see https://registry.terraform.io/providers/dmacvicar/libvirt
     # see https://github.com/dmacvicar/terraform-provider-libvirt
@@ -53,7 +49,7 @@ resource "libvirt_network" "example" {
 # create a cloud-init cloud-config.
 # NB this creates an iso image that will be used by the NoCloud cloud-init datasource.
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.7.6/website/docs/r/cloudinit.html.markdown
-# see journactl -u cloud-init
+# see journalctl -u cloud-init
 # see /run/cloud-init/*.log
 # see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#disk-setup
 # see https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html#datasource-nocloud
