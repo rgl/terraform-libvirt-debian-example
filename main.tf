@@ -68,18 +68,18 @@ users:
     ssh-authorized-keys:
       - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
 disk_setup:
-  /dev/disk/by-id/wwn-0x000000000000ab01:
+  /dev/disk/by-id/wwn-0x000000000000ab00:
     table_type: gpt
     layout:
       - [100, 83]
     overwrite: false
 fs_setup:
   - label: data
-    device: /dev/disk/by-id/wwn-0x000000000000ab01-part1
+    device: /dev/disk/by-id/wwn-0x000000000000ab00-part1
     filesystem: ext4
     overwrite: false
 mounts:
-  - [/dev/disk/by-id/wwn-0x000000000000ab01-part1, /data, ext4, 'defaults,discard,nofail', '0', '2']
+  - [/dev/disk/by-id/wwn-0x000000000000ab00-part1, /data, ext4, 'defaults,discard,nofail', '0', '2']
 runcmd:
   - sed -i '/vagrant insecure public key/d' /home/vagrant/.ssh/authorized_keys
 EOF
@@ -156,6 +156,7 @@ resource "libvirt_domain" "example" {
       mount | grep -E '^/dev/' | sort
       cat /etc/fstab | grep -E '^\s*[^#]' | sort
       df -h
+      sudo tune2fs -l "$(findmnt -n -o SOURCE /data)"
       EOF
     ]
     connection {
