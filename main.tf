@@ -63,10 +63,14 @@ fqdn: example${count.index}.test
 manage_etc_hosts: true
 users:
   - name: vagrant
-    passwd: '$6$rounds=4096$NQ.EmIrGxn$rTvGsI3WIsix9TjWaDfKrt9tm3aa7SX7pzB.PSjbwtLbsplk1HsVzIrZbXwQNce6wmeJXhCq9YFJHDx9bXFHH.'
     lock_passwd: false
     ssh_authorized_keys:
       - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
+chpasswd:
+  expire: false
+  users:
+    - name: vagrant
+      password: '$6$rounds=4096$NQ.EmIrGxn$rTvGsI3WIsix9TjWaDfKrt9tm3aa7SX7pzB.PSjbwtLbsplk1HsVzIrZbXwQNce6wmeJXhCq9YFJHDx9bXFHH.'
 disk_setup:
   /dev/disk/by-id/wwn-0x000000000000ab00:
     table_type: gpt
