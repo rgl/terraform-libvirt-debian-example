@@ -55,9 +55,26 @@ resource "libvirt_network" "example" {
 # see https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html#datasource-nocloud
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.8.3/libvirt/cloudinit_def.go#L139-L168
 resource "libvirt_cloudinit_disk" "example" {
-  count     = var.vm_count
-  name      = "${var.prefix}${count.index}_cloudinit.iso"
-  user_data = <<EOF
+  count = var.vm_count
+  name  = "${var.prefix}${count.index}_cloudinit.iso"
+  # NB in debian trixie (13) setting dhcp6 to false does not actually disable ipv6,
+  #    it just prevents cloud-init from adding the iface eth0 inet6 dhcp line to the
+  #    /etc/network/interfaces.d/50-cloud-init file. that inet6 ifupdown method no
+  #    longer works in debian trixie (13) because it expects to find the dhclient
+  #    binary which no longer exists by default (the isc-dhcp-client package is
+  #    deprecated, and is no longer installed by default; it was replaced by the
+  #    dhcpcd-base package, which provides the dhcpcd binary).
+  #    see https://packages.debian.org/trixie/isc-dhcp-client
+  #    see https://packages.debian.org/trixie/dhcpcd-base
+  #    see https://packages.debian.org/trixie/ifupdown
+  network_config = <<EOF
+version: 2
+ethernets:
+  eth0:
+    dhcp4: true
+    dhcp6: false
+EOF
+  user_data      = <<EOF
 #cloud-config
 fqdn: example${count.index}.test
 manage_etc_hosts: true
@@ -94,7 +111,7 @@ EOF
 resource "libvirt_volume" "example_root" {
   count            = var.vm_count
   name             = "${var.prefix}${count.index}_root.img"
-  base_volume_name = "debian-12-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
+  base_volume_name = "debian-13-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
   format           = "qcow2"
   size             = 16 * 1024 * 1024 * 1024 # GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
 }
