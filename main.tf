@@ -67,43 +67,43 @@ resource "libvirt_cloudinit_disk" "example" {
   #    see https://packages.debian.org/trixie/isc-dhcp-client
   #    see https://packages.debian.org/trixie/dhcpcd-base
   #    see https://packages.debian.org/trixie/ifupdown
-  network_config = <<EOF
-version: 2
-ethernets:
-  eth0:
-    dhcp4: true
-    dhcp6: false
-EOF
-  user_data      = <<EOF
-#cloud-config
-fqdn: example${count.index}.test
-manage_etc_hosts: true
-users:
-  - name: vagrant
-    lock_passwd: false
-    ssh_authorized_keys:
-      - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
-chpasswd:
-  expire: false
+  network_config = <<-EOF
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+      dhcp6: false
+  EOF
+  user_data      = <<-EOF
+  #cloud-config
+  fqdn: example${count.index}.test
+  manage_etc_hosts: true
   users:
     - name: vagrant
-      password: '$6$rounds=4096$NQ.EmIrGxn$rTvGsI3WIsix9TjWaDfKrt9tm3aa7SX7pzB.PSjbwtLbsplk1HsVzIrZbXwQNce6wmeJXhCq9YFJHDx9bXFHH.'
-disk_setup:
-  /dev/disk/by-id/wwn-0x000000000000ab00:
-    table_type: gpt
-    layout:
-      - [100, 83]
-    overwrite: false
-fs_setup:
-  - label: data
-    device: /dev/disk/by-id/wwn-0x000000000000ab00-part1
-    filesystem: ext4
-    overwrite: false
-mounts:
-  - [/dev/disk/by-id/wwn-0x000000000000ab00-part1, /data, ext4, 'defaults,discard,nofail', '0', '2']
-runcmd:
-  - sed -i '/vagrant insecure public key/d' /home/vagrant/.ssh/authorized_keys
-EOF
+      lock_passwd: false
+      ssh_authorized_keys:
+        - ${jsonencode(trimspace(file("~/.ssh/id_rsa.pub")))}
+  chpasswd:
+    expire: false
+    users:
+      - name: vagrant
+        password: '$6$rounds=4096$NQ.EmIrGxn$rTvGsI3WIsix9TjWaDfKrt9tm3aa7SX7pzB.PSjbwtLbsplk1HsVzIrZbXwQNce6wmeJXhCq9YFJHDx9bXFHH.'
+  disk_setup:
+    /dev/disk/by-id/wwn-0x000000000000ab00:
+      table_type: gpt
+      layout:
+        - [100, 83]
+      overwrite: false
+  fs_setup:
+    - label: data
+      device: /dev/disk/by-id/wwn-0x000000000000ab00-part1
+      filesystem: ext4
+      overwrite: false
+  mounts:
+    - [/dev/disk/by-id/wwn-0x000000000000ab00-part1, /data, ext4, 'defaults,discard,nofail', '0', '2']
+  runcmd:
+    - sed -i '/vagrant insecure public key/d' /home/vagrant/.ssh/authorized_keys
+  EOF
 }
 
 # this uses the vagrant debian image imported from https://github.com/rgl/debian-vagrant.
