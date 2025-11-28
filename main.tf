@@ -23,7 +23,7 @@ provider "libvirt" {
 
 variable "prefix" {
   type    = string
-  default = "terraform_example"
+  default = "terraform-debian-example"
 }
 
 variable "vm_count" {
@@ -56,7 +56,7 @@ resource "libvirt_network" "example" {
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.8.3/libvirt/cloudinit_def.go#L139-L168
 resource "libvirt_cloudinit_disk" "example" {
   count = var.vm_count
-  name  = "${var.prefix}${count.index}_cloudinit.iso"
+  name  = "${var.prefix}${count.index}-cloudinit.iso"
   # NB in debian trixie (13) setting dhcp6 to false does not actually disable ipv6,
   #    it just prevents cloud-init from adding the iface eth0 inet6 dhcp line to the
   #    /etc/network/interfaces.d/50-cloud-init file. that inet6 ifupdown method no
@@ -110,7 +110,7 @@ resource "libvirt_cloudinit_disk" "example" {
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.8.3/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_root" {
   count            = var.vm_count
-  name             = "${var.prefix}${count.index}_root.img"
+  name             = "${var.prefix}${count.index}-root.img"
   base_volume_name = "debian-13-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
   format           = "qcow2"
   size             = 16 * 1024 * 1024 * 1024 # GiB. the root FS is automatically resized by cloud-init growpart (see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#grow-partitions).
@@ -120,7 +120,7 @@ resource "libvirt_volume" "example_root" {
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.8.3/website/docs/r/volume.html.markdown
 resource "libvirt_volume" "example_data" {
   count  = var.vm_count
-  name   = "${var.prefix}${count.index}_data.img"
+  name   = "${var.prefix}${count.index}-data.img"
   format = "qcow2"
   size   = 32 * 1024 * 1024 * 1024 # GiB.
 }
