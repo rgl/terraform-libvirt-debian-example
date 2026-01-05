@@ -1,4 +1,4 @@
-# Usage (Ubuntu 22.04 host)
+# Usage (Ubuntu 24.04 host)
 
 [![Lint](https://github.com/rgl/terraform-libvirt-debian-example/actions/workflows/lint.yml/badge.svg)](https://github.com/rgl/terraform-libvirt-debian-example/actions/workflows/lint.yml)
 
@@ -9,7 +9,7 @@ Install Terraform:
 ```bash
 # see https://github.com/hashicorp/terraform/releases
 # renovate: datasource=github-releases depName=hashicorp/terraform
-terraform_version='1.14.0'
+terraform_version='1.14.3'
 wget "https://releases.hashicorp.com/terraform/$terraform_version/terraform_${$terraform_version}_linux_amd64.zip"
 unzip "terraform_${$terraform_version}_linux_amd64.zip"
 sudo install terraform /usr/local/bin

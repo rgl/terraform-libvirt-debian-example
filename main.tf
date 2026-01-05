@@ -1,6 +1,6 @@
 # see https://github.com/hashicorp/terraform
 terraform {
-  required_version = "1.14.0"
+  required_version = "1.14.3"
   required_providers {
     # see https://registry.terraform.io/providers/hashicorp/random
     # see https://github.com/hashicorp/terraform-provider-random
@@ -130,7 +130,7 @@ resource "libvirt_domain" "example" {
   count    = var.vm_count
   name     = "${var.prefix}${count.index}"
   machine  = "q35"
-  firmware = "/usr/share/OVMF/OVMF_CODE.fd"
+  firmware = "/usr/share/OVMF/OVMF_CODE_4M.fd"
   cpu {
     mode = "host-passthrough"
   }
@@ -173,7 +173,7 @@ resource "libvirt_domain" "example" {
       hostname --fqdn
       cat /etc/hosts
       sudo sfdisk -l
-      lsblk -x KNAME -o KNAME,SIZE,TRAN,SUBSYSTEMS,FSTYPE,UUID,LABEL,MODEL,SERIAL
+      lsblk -x KNAME -o KNAME,SIZE,TRAN,SUBSYSTEMS,FSTYPE,UUID,LABEL,MODEL,SERIAL | cat
       mount | grep -E '^/dev/' | sort
       cat /etc/fstab | grep -E '^\s*[^#]' | sort
       df -h
