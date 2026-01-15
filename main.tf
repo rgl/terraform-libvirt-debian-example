@@ -31,12 +31,17 @@ variable "vm_count" {
   default = 1
 }
 
+variable "network_cidr" {
+  type    = string
+  default = "10.17.3.0/24"
+}
+
 # see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.8.3/website/docs/r/network.markdown
 resource "libvirt_network" "example" {
   name      = var.prefix
   mode      = "nat"
   domain    = "example.test"
-  addresses = ["10.17.3.0/24"]
+  addresses = [var.network_cidr]
   dhcp {
     enabled = false
   }
@@ -157,7 +162,7 @@ resource "libvirt_domain" "example" {
   network_interface {
     network_id     = libvirt_network.example.id
     wait_for_lease = true
-    addresses      = ["10.17.3.${2 + count.index}"]
+    addresses      = [cidrhost(var.network_cidr, 2 + count.index)]
   }
   provisioner "remote-exec" {
     inline = [
