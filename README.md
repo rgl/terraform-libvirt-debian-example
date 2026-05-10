@@ -9,7 +9,7 @@ Install Terraform:
 ```bash
 # see https://github.com/hashicorp/terraform/releases
 # renovate: datasource=github-releases depName=hashicorp/terraform
-terraform_version='1.14.8'
+terraform_version='1.15.2'
 wget "https://releases.hashicorp.com/terraform/$terraform_version/terraform_${$terraform_version}_linux_amd64.zip"
 unzip "terraform_${$terraform_version}_linux_amd64.zip"
 sudo install terraform /usr/local/bin
@@ -40,6 +40,8 @@ virsh qemu-agent-command terraform-debian-example0 '{"execute":"guest-network-ge
 ./qemu-agent-guest-exec terraform-debian-example0 uname -a
 ssh-keygen -f ~/.ssh/known_hosts -R "$(terraform output --json ips | jq -r '.[0]')"
 ssh "vagrant@$(terraform output --json ips | jq -r '.[0]')"
+cat /etc/os-release
+exit
 ```
 
 Destroy the infrastructure:
