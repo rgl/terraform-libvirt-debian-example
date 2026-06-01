@@ -1,18 +1,18 @@
 # see https://github.com/hashicorp/terraform
 terraform {
-  required_version = "1.15.2"
+  required_version = "1.15.5"
   required_providers {
     # see https://registry.terraform.io/providers/hashicorp/random
     # see https://github.com/hashicorp/terraform-provider-random
     random = {
       source  = "hashicorp/random"
-      version = "3.8.1"
+      version = "3.9.0"
     }
     # see https://registry.terraform.io/providers/dmacvicar/libvirt
     # see https://github.com/dmacvicar/terraform-provider-libvirt
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "0.9.7"
+      version = "0.9.8"
     }
   }
 }
@@ -36,8 +36,8 @@ variable "network_cidr" {
   default = "10.17.3.0/24"
 }
 
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/network
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/network.md
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/network
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/network.md
 resource "libvirt_network" "example" {
   name = var.prefix
   forward = {
@@ -72,9 +72,9 @@ resource "libvirt_network" "example" {
 # see /run/cloud-init/*.log
 # see https://cloudinit.readthedocs.io/en/latest/topics/examples.html#disk-setup
 # see https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html#datasource-nocloud
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/cloudinit_disk
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/cloudinit_disk.md
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/internal/provider/cloudinit_disk_resource.go#L291-L341
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/cloudinit_disk
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/cloudinit_disk.md
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/internal/provider/cloudinit_disk_resource.go#L291-L341
 resource "libvirt_cloudinit_disk" "example" {
   count = var.vm_count
   name  = "${var.prefix}${count.index}-cloudinit.iso"
@@ -129,8 +129,8 @@ resource "libvirt_cloudinit_disk" "example" {
   EOF
 }
 
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/volume
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/volume.md
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/volume
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/volume.md
 resource "libvirt_volume" "example_cloudinit" {
   count = var.vm_count
   pool  = "default"
@@ -143,8 +143,8 @@ resource "libvirt_volume" "example_cloudinit" {
 }
 
 # this uses the vagrant debian image imported from https://github.com/rgl/debian-vagrant.
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/volume
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/volume.md
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/volume
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/volume.md
 resource "libvirt_volume" "example_root" {
   count    = var.vm_count
   pool     = "default"
@@ -164,8 +164,8 @@ resource "libvirt_volume" "example_root" {
 }
 
 # a data disk.
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/volume
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/volume.md
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/volume
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/volume.md
 resource "libvirt_volume" "example_data" {
   count    = var.vm_count
   pool     = "default"
@@ -178,8 +178,8 @@ resource "libvirt_volume" "example_data" {
   }
 }
 
-# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.7/docs/resources/domain
-# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.7/docs/resources/domain.md
+# see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/domain
+# see https://github.com/dmacvicar/terraform-provider-libvirt/blob/v0.9.8/docs/resources/domain.md
 resource "libvirt_domain" "example" {
   count       = var.vm_count
   name        = "${var.prefix}${count.index}"
