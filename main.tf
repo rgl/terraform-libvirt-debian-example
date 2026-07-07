@@ -31,9 +31,20 @@ variable "vm_count" {
   default = 1
 }
 
+# NB this uses the vagrant debian image imported from https://github.com/rgl/debian-vagrant.
+variable "base_volume_name" {
+  type    = string
+  default = "debian-13-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
+}
+
 variable "network_cidr" {
   type    = string
   default = "10.17.3.0/24"
+}
+
+# see https://gitlab.com/libosinfo/osinfo-db/-/tree/main/data/os/debian.org/debian-13.xml.in
+locals {
+  os_id = "http://debian.org/debian/${regex("debian-([^-]+)", var.base_volume_name)[0]}"
 }
 
 # see https://registry.terraform.io/providers/dmacvicar/libvirt/0.9.8/docs/resources/network
@@ -159,7 +170,7 @@ resource "libvirt_volume" "example_root" {
     format = {
       type = "qcow2"
     }
-    path = "/var/lib/libvirt/images/debian-13-uefi-amd64_vagrant_box_image_0.0.0_box_0.img"
+    path = "/var/lib/libvirt/images/${var.base_volume_name}"
   }
 }
 
@@ -197,7 +208,7 @@ resource "libvirt_domain" "example" {
   metadata = {
     xml = <<-EOF
       <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
-        <libosinfo:os id="http://debian.org/debian/13"/>
+        <libosinfo:os id="${local.os_id}"/>
       </libosinfo:libosinfo>
       EOF
   }
