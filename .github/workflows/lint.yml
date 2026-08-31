@@ -3,13 +3,13 @@ on: [push]
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
         with:
           # renovate: datasource=github-releases depName=hashicorp/terraform
-          terraform_version: "1.15.8"
+          terraform_version: "1.16.0"
       - name: Cache the plugins directory
         uses: actions/cache@v6
         with:
@@ -30,12 +30,12 @@ jobs:
         run: tflint --format compact
   fmt:
     name: terraform fmt check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
         with:
           # renovate: datasource=github-releases depName=hashicorp/terraform
-          terraform_version: "1.15.8"
+          terraform_version: "1.16.0"
       - name: terraform fmt check
         run: terraform fmt -check -diff
