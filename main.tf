@@ -287,6 +287,16 @@ resource "libvirt_domain" "example" {
         }
       }
     ]
+    tpms = [
+      {
+        model = "tpm-crb"
+        backend = {
+          emulator = {
+            version = "2.0"
+          }
+        }
+      }
+    ]
     disks = [
       {
         driver = {
@@ -360,6 +370,7 @@ resource "terraform_data" "example_provision" {
   provisioner "remote-exec" {
     inline = [
       <<-EOF
+      #!/usr/bin/bash
       set -eux
       cloud-init --version
       cloud-init status --long --wait
@@ -376,6 +387,24 @@ resource "terraform_data" "example_provision" {
       cat /etc/fstab | grep -E '^\s*[^#]' | sort
       df -h
       sudo tune2fs -l "$(findmnt -n -o SOURCE /data)"
+      EOF
+      ,
+      # poke the tpm.
+      <<-EOF
+      #!/usr/bin/bash
+      set -eux
+      sudo apt-get update
+      sudo apt-get install -y systemd-cryptsetup tpm2-tools
+      sudo journalctl -k --grep=tpm --no-pager
+      sudo systemd-cryptenroll --tpm2-device=list
+      sudo tpm2 getcap --list
+      sudo tpm2 getcap commands             | perl -ne 'push @m, $1 if /^([^ :]+)/; END { print join(" ", sort @m), "\n" }'
+      sudo tpm2 getcap algorithms           | perl -ne 'push @m, $1 if /^([^ :]+)/; END { print join(" ", sort @m), "\n" }'
+      sudo tpm2 getcap ecc-curves           | perl -ne 'push @m, $1 if /^([^ :]+)/; END { print join(" ", sort @m), "\n" }'
+      sudo tpm2 getcap properties-fixed     | perl -ne 'push @m, $1 if /^([^ :]+)/; END { print join(" ", sort @m), "\n" }'
+      sudo tpm2 getcap properties-variable  | perl -ne 'push @m, $1 if /^([^ :]+)/; END { print join(" ", sort @m), "\n" }'
+      sudo tpm2 pcrread
+      sudo tpm2 getekcertificate | openssl x509 -text -noout
       EOF
     ]
     connection {
